@@ -9,15 +9,21 @@
       },
       "Packages": {
         "$path": "Packages"
+      },
+      "ReplicatedAssets": {
+        "$path": "assets/ReplicatedStorage"
       }
     },
-
+    "ServerStorage": {
+      "ServerAssets": {
+        "$path": "assets/ServerStorage"
+      }
+    },
     "ServerScriptService": {
       "Server": {
         "$path": "src/server"
       }
     },
-
     "StarterPlayer": {
       "StarterPlayerScripts": {
         "Client": {
