@@ -5,6 +5,7 @@ local players = game:GetService("Players")
 -- Variables
 -- Functions
 -- Listeners
+
 players.PlayerAdded:Connect(function(player: Player)
 	player.CharacterAdded:Connect(function(character)
 		for _, basePart in character:GetDescendants() do

@@ -1,6 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Packages = ReplicatedStorage.Packages
-local Abilities = require(ReplicatedStorage.Shared.Abilities)
 local Red = require(Packages.Red)
 local Net = Red.Server("Abilities")
 
@@ -8,19 +7,15 @@ local function canUseAbility(...)
 	return true
 end
 
-Net:On("useAbility", function(player, ability: Abilities.Abilities)
-	print(string.format("Ability %s registered on player %s", tostring(ability), player.Name))
+Net:On("useAbility", function(player, ability: string, state: Enum.UserInputState, ...)
+	print(string.format("Ability %s registered on player %s", ability, player.Name))
 	if not canUseAbility(player, ability) then
-		return { success = false, message = "You can not use this ability" }
+		return
 	end
-
-	Net:FireAll("abilityUsed", player, ability)
-
-	return { success = true, message = "You can use this ability" }
+	Net:FireAll("abilityUsed", player, ability, state, ...)
 end)
 
-Net:On("SmokePosChange", function(player, smokePart, smoothedVelocity)
-	Net:FireAll("NewSmokePos", player, smokePart, smoothedVelocity)
+Net:On("KnifeShot", function(player, direction: Vector3, ...)
+	print("Knife shot registered on player " .. player.Name)
+	Net:FireAllExcept(player, "KnifeShot", player, direction, ...)
 end)
-
-print("Hello its a me mario")

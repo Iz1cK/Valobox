@@ -1,80 +1,79 @@
-local module = {}
---Services
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Red = require(ReplicatedStorage.Packages.Red)
-local smokeControlNetSpace = Red.Client("SmokeControl")
+-- local module = {}
+-- --Services
+-- local ReplicatedStorage = game:GetService("ReplicatedStorage")
+-- local Red = require(ReplicatedStorage.Packages.Red)
+-- local smokeControlNetSpace = Red.Client("SmokeControl")
 
---Enums
-module.KEYBIND = Enum.KeyCode.C
-module.MAX_CASTS = 3
-module.COOLDOWN_DURATION = 0.3
-module.ERROR_MESSAGE = {
-	["ONCOOLDOWN"] = "This ability is still on cooldown ",
-}
-module.ERROR_MESSAGE.__index = module.ERROR_MESSAGE
---Variables
-local player: Player = game:GetService("Players").LocalPlayer
-local character: Model = player.Character or player.CharacterAdded:Wait()
-local camera = workspace.CurrentCamera
---Functions
-function module:Activate(mouse)
-	local smokePart: Part = ReplicatedStorage.ReplicatedAssets.Smoke:Clone()
-	local characterCFrame = character:GetPivot()
-	local smokePosition = characterCFrame + characterCFrame.LookVector.Unit * 3 + characterCFrame.RightVector.Unit * 3.5
+-- --Enums
+-- module.KEYBIND = Enum.KeyCode.C
+-- module.MAX_CASTS = 3
+-- module.COOLDOWN_DURATION = 0.3
+-- module.ERROR_MESSAGE = {
+-- 	["ONCOOLDOWN"] = "This ability is still on cooldown ",
+-- }
+-- module.ERROR_MESSAGE.__index = module.ERROR_MESSAGE
+-- --Variables
+-- local player: Player = game:GetService("Players").LocalPlayer
+-- local character: Model = player.Character or player.CharacterAdded:Wait()
+-- local camera = workspace.CurrentCamera
+-- --Functions
+-- function module:Activate(mouse)
+-- 	local smokePart: Part = ReplicatedStorage.ReplicatedAssets.Smoke:Clone()
+-- 	local characterCFrame = character:GetPivot()
+-- 	local smokePosition = characterCFrame + characterCFrame.LookVector.Unit * 3 + characterCFrame.RightVector.Unit * 3.5
 
-	smokePart:PivotTo(smokePosition)
+-- 	smokePart:PivotTo(smokePosition)
 
-	smokePart.Parent = workspace
-	local referencePoint = characterCFrame.Position
+-- 	smokePart.Parent = workspace
 
-	local direction = (mouse.Hit.Position - referencePoint).Unit
-	smokePart:ApplyImpulse(direction * smokePart:GetMass() * 100)
+-- 	local runService = game:GetService("RunService")
+-- 	local gravity = Vector3.new(0, -workspace.Gravity, 0)
+-- 	local smokePartLinearVelocity = Instance.new("LinearVelocity")
+-- 	smokePartLinearVelocity.Parent = smokePart
 
-	local runService = game:GetService("RunService")
-	local gravity = Vector3.new(0, -workspace.Gravity, 0)
+-- 	local connection
+-- 	connection = runService.RenderStepped:Connect(function(dt)
+-- 		local toMouseFlat = Vector3.new(mouse.Hit.Position.X, smokePart.Position.Y, mouse.Hit.Position.Z)
+-- 			- smokePart.Position
+-- 		local horizontalDirection = toMouseFlat.Unit
 
-	local connection
-	connection = runService.RenderStepped:Connect(function(dt)
-		local toMouseFlat = Vector3.new(mouse.Hit.Position.X, smokePart.Position.Y, mouse.Hit.Position.Z)
-			- smokePart.Position
-		local horizontalDirection = toMouseFlat.Unit
+-- 		local viewDirection = (mouse.Hit.Position - camera.CFrame.Position).Unit
+-- 		local toPoint = smokePart.Position - mouse.Hit.Position
+-- 		local dotProduct = viewDirection:Dot(toPoint)
+-- 		local projectedPoint = mouse.Hit.Position + viewDirection * dotProduct
 
-		local viewDirection = (mouse.Hit.Position - camera.CFrame.Position).Unit
-		local toPoint = smokePart.Position - mouse.Hit.Position
-		local dotProduct = viewDirection:Dot(toPoint)
-		local projectedPoint = mouse.Hit.Position + viewDirection * dotProduct
+-- 		-- Determine vertical direction
+-- 		local verticalDirection
+-- 		if projectedPoint.Y > smokePart.Position.Y then
+-- 			verticalDirection = Vector3.new(0, 1, 0)
+-- 		else
+-- 			verticalDirection = Vector3.new(0, -1, 0)
+-- 		end
 
-		-- Determine vertical direction
-		local verticalDirection
-		if projectedPoint.Y > smokePart.Position.Y then
-			verticalDirection = Vector3.new(0, 1, 0)
-		else
-			verticalDirection = Vector3.new(0, -1, 0)
-		end
+-- 		local combinedDirection = (horizontalDirection * 5 + verticalDirection * 10).Unit
+-- 		local desiredVelocity = combinedDirection * 100
 
-		local combinedDirection = (horizontalDirection * 5 + verticalDirection * 10).Unit
-		local desiredVelocity = combinedDirection * 100
-		local currentVelocity = smokePart.AssemblyLinearVelocity + gravity * dt
+-- 		local currentVelocity = smokePart.AssemblyLinearVelocity + gravity * dt
 
-		-- Smooth the velocity transition
-		local smoothedVelocity = currentVelocity:Lerp(desiredVelocity, 0.1)
-		smokeControlNetSpace:Fire("SmokePosChange", player, smokePart, smoothedVelocity)
-		smokePart.AssemblyLinearVelocity = smoothedVelocity
-	end)
+-- 		-- Smooth the velocity transition
+-- 		local smoothedVelocity = currentVelocity:Lerp(desiredVelocity, 0.1)
+-- 		smokeControlNetSpace:Fire("SmokePosChange", player, smokePart.Position)
+-- 		smokePart.AssemblyLinearVelocity = smoothedVelocity
+-- 	end)
 
-	smokePart.Touched:Connect(function(hitPart)
-		if hitPart.Name == "Baseplate" or hitPart:IsA("Terrain") then
-			smokePart.Anchored = true
-			smokePart.CanCollide = false
-			smokePart.Size = smokePart.Size + Vector3.new(10, 10, 10)
-			connection:Disconnect()
-			smokePart.Touched:Connect(function() end)
-		end
-	end)
-end
+-- 	smokePart.Touched:Connect(function(hitPart)
+-- 		if hitPart.Name == "Baseplate" or hitPart:IsA("Terrain") then
+-- 			smokePart.Anchored = true
+-- 			smokePart.CanCollide = false
+-- 			smokePart.Size = smokePart.Size + Vector3.new(10, 10, 10)
+-- 			connection:Disconnect()
+-- 			smokePart.Touched:Connect(function() end)
+-- 		end
+-- 	end)
+-- end
 
-function module:Init() end
+-- function module:Init() end
 
---Listeners
+-- --Listeners
 
-return module
+-- return module
