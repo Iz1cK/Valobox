@@ -19,6 +19,9 @@ playerState = table.freeze({
 local currentState = playerState.Setup
 local camera: Camera = workspace.CurrentCamera
 
+local setupState = playerState.Setup
+local fireState = playerState.Fire
+
 function module:Init()
 	return module
 end
@@ -29,24 +32,11 @@ function module:Activate(player, state: Enum.UserInputState, ...)
 		return
 	end
 	local unpacked = { ... }
-	local knifeDirection
-	if unpacked[2] then
-		currentState = unpacked[1]
-		knifeDirection = unpacked[2]
-	else
+	if unpacked[1] then
 		currentState = unpacked[1]
 	end
 	knifes[player] = knifes[player] or {}
-	if player == game.Players.LocalPlayer and #knifes[game.Players.LocalPlayer] == 0 then
-		currentState = playerState.Setup
-		ContextActionService:UnbindAction("FireKnife")
-	elseif player == game.Players.LocalPlayer and #knifes[game.Players.LocalPlayer] > 0 then
-		currentState = playerState.Fire
-	end
-	print(currentState)
-	print(playerState.Setup)
-	print(playerState.Fire)
-	if currentState == playerState.Setup then
+	if currentState.type == setupState.type then
 		local character: Model = player.Character or player.CharacterAdded:Wait()
 		for i = -2, 2, 1 do
 			local knifePart: MeshPart = ReplicatedStorage.ReplicatedAssets.Knife:Clone()
@@ -70,56 +60,63 @@ function module:Activate(player, state: Enum.UserInputState, ...)
 		currentState = playerState.Fire
 
 		ContextActionService:BindAction("FireKnife", function(_, inputState, _)
-			-- if player ~= game.Players.LocalPlayer and knifeDirection == nil then
-			-- 	return
-			-- end
 			if player ~= game.Players.LocalPlayer then
 				return
 			end
 			if inputState ~= Enum.UserInputState.Begin then
 				return
 			end
-			print("click")
-			if currentState ~= playerState.Fire then
+			if currentState.type ~= fireState.type then
 				return
 			end
-			local knifePart: MeshPart = knifes[player][1]
-			knifePart.Massless = true
-			knifePart.CanCollide = true
-			knifePart.Anchored = false
-			local knifeConstraint = knifePart:FindFirstChildOfClass("WeldConstraint")
-			knifeConstraint:Destroy()
-
-			local attachment = knifePart:FindFirstChildOfClass("Attachment")
-			local angular = Instance.new("AngularVelocity")
-			angular.AngularVelocity = Vector3.new(0, 0, 0)
-			angular.Attachment0 = attachment
-			angular.Parent = knifePart
-			angular.MaxTorque = math.huge
-
-			local direction = knifeDirection or camera.CFrame.LookVector
-			knifePart:ApplyImpulse(direction)
-
-			local Mass = knifePart:GetMass()
-			local up = Instance.new("VectorForce")
-			up.Force = Vector3.new(0, 0, Mass * workspace.gravity) --?? not sure why applying to z axis is working
-			up.Attachment0 = attachment
-			up.Parent = knifePart
-
-			knifePart.Parent = workspace
-			table.remove(knifes[player], 1)
+			if player == game.Players.LocalPlayer and #knifes[game.Players.LocalPlayer] == 0 then
+				currentState = playerState.Setup
+				ContextActionService:UnbindAction("FireKnife")
+			elseif player == game.Players.LocalPlayer and #knifes[game.Players.LocalPlayer] > 0 then
+				currentState = playerState.Fire
+			end
+			local direction = module:fireKnife(player)
 			currentState = playerState.Fire
 			if #knifes[player] == 0 then
 				currentState = playerState.Setup
 				print("No more knifes")
 			end
-			abilitesNetSpace:Fire("KnifeShot", knifeDirection)
+			abilitesNetSpace:Fire("KnifeShot", direction)
 		end, false, Enum.UserInputType.MouseButton1)
 	end
-	-- create on left click listener with ContextActionService that fires a remote event using Red package to server to fire knife event on server side
 end
 
-function module:GetAbilityData(player)
+function module:fireKnife(player: Player, ...)
+	local unpacked = { ... }
+	local knifeDirection = unpacked[1] or nil
+	local knifePart: MeshPart = knifes[player][1]
+	knifePart.Massless = true
+	knifePart.CanCollide = true
+	knifePart.Anchored = false
+	local knifeConstraint = knifePart:FindFirstChildOfClass("WeldConstraint")
+	knifeConstraint:Destroy()
+
+	local attachment = knifePart:FindFirstChildOfClass("Attachment")
+	local angular = Instance.new("AngularVelocity")
+	angular.AngularVelocity = Vector3.new(0, 0, 0)
+	angular.Attachment0 = attachment
+	angular.Parent = knifePart
+	angular.MaxTorque = math.huge
+	local direction = knifeDirection or camera.CFrame.LookVector
+	knifePart:ApplyImpulse(direction)
+
+	local Mass = knifePart:GetMass()
+	local up = Instance.new("VectorForce")
+	up.Force = Vector3.new(0, 0, Mass * workspace.gravity) --?? not sure why applying to z axis is working
+	up.Attachment0 = attachment
+	up.Parent = knifePart
+
+	knifePart.Parent = workspace
+	table.remove(knifes[player], 1)
+	return direction
+end
+
+function module:GetAbilityData()
 	return currentState
 end
 

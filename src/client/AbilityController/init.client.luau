@@ -16,7 +16,6 @@ local player = game.Players.LocalPlayer
 
 --#region Functions
 local function useAbility(ability: string, state: Enum.UserInputState)
-	print(abilityModules)
 	if not abilityModules[ability] then
 		return
 	end
@@ -27,11 +26,10 @@ end
 
 local function init()
 	for _, agent: ModuleScript in script:GetChildren() do
-		print(agent)
 		for _, ability in agent:GetChildren() do
-			print("|_" .. ability.Name)
 			if ability:IsA("ModuleScript") then
 				local abilityName = agent.Name .. ability.Name
+				print(abilityName)
 				abilityModules[abilityName] = (require)(ability):Init()
 			end
 		end
@@ -42,9 +40,9 @@ local function init()
 		abilityModules[ability]:Activate(player, state, ...)
 	end)
 
-	abilitesNetSpace:On("KnifeShot", function(player: Player, direction: Vector3, ...)
+	abilitesNetSpace:On("KnifeShotDone", function(player: Player, direction: Vector3, ...)
 		print("Knife shot registered on player " .. player.Name)
-		abilityModules["JettKnives"]:Activate(player, Enum.UserInputState.Begin, direction, ...)
+		abilityModules["JettKnives"]:fireKnife(player, direction, ...)
 	end)
 end
 
