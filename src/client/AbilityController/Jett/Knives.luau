@@ -97,22 +97,51 @@ function module:fireKnife(player: Player, ...)
 	knifeConstraint:Destroy()
 
 	local attachment = knifePart:FindFirstChildOfClass("Attachment")
+
+	-- make the knifeParts face up or down relative to the camera
+
+	local direction = knifeDirection or camera.CFrame.LookVector
+	knifePart:ApplyImpulse(direction * 3)
+
 	local angular = Instance.new("AngularVelocity")
 	angular.AngularVelocity = Vector3.new(0, 0, 0)
 	angular.Attachment0 = attachment
 	angular.Parent = knifePart
 	angular.MaxTorque = math.huge
-	local direction = knifeDirection or camera.CFrame.LookVector
-	knifePart:ApplyImpulse(direction)
 
 	local Mass = knifePart:GetMass()
 	local up = Instance.new("VectorForce")
-	up.Force = Vector3.new(0, 0, Mass * workspace.gravity) --?? not sure why applying to z axis is working
+	up.Force = Vector3.new(0, Mass * workspace.gravity, 0)
 	up.Attachment0 = attachment
+	up.ApplyAtCenterOfMass = true
 	up.Parent = knifePart
 
 	knifePart.Parent = workspace
 	table.remove(knifes[player], 1)
+
+	local function destroyKnife()
+		if up then
+			up:Destroy()
+		end
+		if angular then
+			angular:Destroy()
+		end
+		if knifePart then
+			knifePart:Destroy()
+		end
+		knifePart.Touched:Connect(function() end)
+		print("Knife destroyed")
+	end
+
+	knifePart.Touched:Connect(function(hitPart)
+		if hitPart.Parent:FindFirstChildOfClass("Humanoid") then
+			local humanoid = hitPart.Parent:FindFirstChildOfClass("Humanoid")
+			humanoid:TakeDamage(34)
+		end
+		destroyKnife()
+	end)
+
+	task.delay(3, destroyKnife)
 	return direction
 end
 

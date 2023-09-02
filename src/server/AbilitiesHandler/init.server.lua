@@ -19,3 +19,8 @@ Net:On("KnifeShot", function(player, direction: Vector3, ...)
 	print("Knife shot registered on player " .. player.Name)
 	Net:FireAllExcept(player, "KnifeShotDone", player, direction, ...)
 end)
+
+Net:On("SmokePosChange", function(player, dt, direction: Vector3, ...)
+	print("Smoke position change registered on player " .. player.Name .. " with direction " .. tostring(direction))
+	Net:FireAllExcept(player, "SmokePosChangeDone", player, dt, direction, ...)
+end)

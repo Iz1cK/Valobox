@@ -44,6 +44,10 @@ local function init()
 		print("Knife shot registered on player " .. player.Name)
 		abilityModules["JettKnives"]:fireKnife(player, direction, ...)
 	end)
+
+	abilitesNetSpace:On("SmokePosChangeDone", function(player: Player, dt, direction: Vector3, ...)
+		abilityModules["JettSmoke"]:changeSmokePosition(player, dt, direction, ...)
+	end)
 end
 
 local function start()
