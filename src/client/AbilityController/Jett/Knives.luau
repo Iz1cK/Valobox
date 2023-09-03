@@ -47,7 +47,7 @@ function module:Activate(player, state: Enum.UserInputState, ...)
 				+ characterCFrame.LookVector.Unit * (-math.abs(i) + 3)
 				+ characterCFrame.RightVector.Unit * i
 
-			knifePosition = CFrame.new(knifePosition, knifePosition + characterCFrame.LookVector.Unit * 100)
+			knifePosition = CFrame.new(knifePosition, knifePosition + characterCFrame.LookVector.Unit * 150)
 				* CFrame.Angles(math.rad(90), 0, math.rad(90))
 
 			knifePart:PivotTo(knifePosition)
@@ -131,15 +131,17 @@ function module:fireKnife(player: Player, ...)
 		if knifePart then
 			knifePart:Destroy()
 		end
-		knifePart.Touched:Connect(function() end)
 		print("Knife destroyed")
 	end
 
-	knifePart.Touched:Connect(function(hitPart)
+	local connect
+	connect = knifePart.Touched:Connect(function(hitPart)
 		if hitPart.Parent:FindFirstChildOfClass("Humanoid") then
-			playerStatsNetSpace:Fire("KnifeHit", player, hitPart)
-			local humanoid = hitPart.Parent:FindFirstChildOfClass("Humanoid")
-			humanoid:TakeDamage(abilityData.Damage)
+			if hitPart.Parent == player.Character then
+				return
+			end
+			connect:Disconnect()
+			playerStatsNetSpace:Fire("KnifeHit", hitPart)
 		end
 		destroyKnife()
 	end)
