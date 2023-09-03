@@ -1,13 +1,13 @@
 local module = {}
 
--- local x = 9
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local abilityData = require(ReplicatedStorage.GeneralData.Jett.Dash)
 
 function module:Init()
 	return module
 end
 
 function module:Activate(player: Player, state: Enum.UserInputState, ...)
-	-- local _,_,_,otherX = unpack(...)
 	print(string.format("Ability %s activated on player %s", tostring(self.Name), player.Name))
 	local character: Model = player.Character or player.CharacterAdded:Wait()
 
@@ -18,12 +18,11 @@ function module:Activate(player: Player, state: Enum.UserInputState, ...)
 	local PrimaryPart: BasePart = character.PrimaryPart :: BasePart
 	local direction = PrimaryPart.CFrame.LookVector.Unit
 	local Mass = PrimaryPart.AssemblyMass
-	PrimaryPart:ApplyImpulse(Mass * direction * 50)
+	PrimaryPart:ApplyImpulse(Mass * direction * abilityData.Strength)
 end
 
 function module:GetAbilityData(player)
 	return player, self.Name
-	-- return player, self.Name, x
 end
 
 return module

@@ -2,6 +2,7 @@ local module = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Red = require(ReplicatedStorage.Packages.Red)
+local abilityData = require(ReplicatedStorage.GeneralData.Jett.Smoke)
 local smokeControlNetSpace = Red.Client("Abilities")
 
 local smokes = {}
@@ -82,7 +83,7 @@ function module:changeSmokePosition(player, dt, ...)
 		end
 
 		local combinedDirection = (horizontalDirection * 5 + verticalDirection * 10).Unit
-		local desiredVelocity = combinedDirection * 100
+		local desiredVelocity = combinedDirection * abilityData.Strength
 
 		local currentVelocity = smokePart.AssemblyLinearVelocity + gravity * dt
 

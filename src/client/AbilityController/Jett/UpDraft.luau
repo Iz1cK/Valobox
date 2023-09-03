@@ -1,13 +1,13 @@
 local module = {}
 
--- local x = 9
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local abilityData = require(ReplicatedStorage.GeneralData.Jett.UpDraft)
 
 function module:Init()
 	return module
 end
 
 function module:Activate(player: Player, state: Enum.UserInputState, ...)
-	-- local _,_,_,otherX = unpack(...)
 	if state ~= Enum.UserInputState.Begin then
 		return
 	end
@@ -23,13 +23,13 @@ function module:Activate(player: Player, state: Enum.UserInputState, ...)
 	local direction = Vector3.new(0, 1, 0)
 	local Mass = PrimaryPart.AssemblyMass
 	PrimaryPart:ApplyImpulse(
-		Mass * direction * 100 - Vector3.new(0, math.round(PrimaryPart.AssemblyLinearVelocity.Y), 0) * Mass
+		Mass * direction * abilityData.Strength
+			- Vector3.new(0, math.round(PrimaryPart.AssemblyLinearVelocity.Y), 0) * Mass
 	)
 end
 
 function module:GetAbilityData(player)
 	return player, self.Name
-	-- return player, self.Name, x
 end
 
 return module

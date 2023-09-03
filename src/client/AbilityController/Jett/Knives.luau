@@ -2,8 +2,10 @@ local module = {}
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ContextActionService = game:GetService("ContextActionService")
+local abilityData = require(ReplicatedStorage.GeneralData.Jett.Knives)
 local Red = require(ReplicatedStorage.Packages.Red)
 local abilitesNetSpace = Red.Client("Abilities")
+local playerStatsNetSpace = Red.Client("PlayerStats")
 local knifes = {}
 
 local playerState = {}
@@ -101,7 +103,7 @@ function module:fireKnife(player: Player, ...)
 	-- make the knifeParts face up or down relative to the camera
 
 	local direction = knifeDirection or camera.CFrame.LookVector
-	knifePart:ApplyImpulse(direction * 3)
+	knifePart:ApplyImpulse(direction * abilityData.Speed)
 
 	local angular = Instance.new("AngularVelocity")
 	angular.AngularVelocity = Vector3.new(0, 0, 0)
@@ -135,13 +137,14 @@ function module:fireKnife(player: Player, ...)
 
 	knifePart.Touched:Connect(function(hitPart)
 		if hitPart.Parent:FindFirstChildOfClass("Humanoid") then
+			playerStatsNetSpace:Fire("KnifeHit", player, hitPart)
 			local humanoid = hitPart.Parent:FindFirstChildOfClass("Humanoid")
-			humanoid:TakeDamage(34)
+			humanoid:TakeDamage(abilityData.Damage)
 		end
 		destroyKnife()
 	end)
 
-	task.delay(3, destroyKnife)
+	task.delay(abilityData.AliveTime, destroyKnife)
 	return direction
 end
 

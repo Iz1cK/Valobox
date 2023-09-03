@@ -16,6 +16,9 @@ local player = game.Players.LocalPlayer
 
 --#region Functions
 local function useAbility(ability: string, state: Enum.UserInputState)
+	if state ~= Enum.UserInputState.Begin then
+		return
+	end
 	if not abilityModules[ability] then
 		return
 	end
@@ -28,7 +31,7 @@ local function init()
 	for _, agent: ModuleScript in script:GetChildren() do
 		for _, ability in agent:GetChildren() do
 			if ability:IsA("ModuleScript") then
-				local abilityName = agent.Name .. ability.Name
+				local abilityName = agent.Name .. "_" .. ability.Name
 				print(abilityName)
 				abilityModules[abilityName] = (require)(ability):Init()
 			end
@@ -42,19 +45,19 @@ local function init()
 
 	abilitesNetSpace:On("KnifeShotDone", function(player: Player, direction: Vector3, ...)
 		print("Knife shot registered on player " .. player.Name)
-		abilityModules["JettKnives"]:fireKnife(player, direction, ...)
+		abilityModules["Jett_Knives"]:fireKnife(player, direction, ...)
 	end)
 
 	abilitesNetSpace:On("SmokePosChangeDone", function(player: Player, dt, direction: Vector3, ...)
-		abilityModules["JettSmoke"]:changeSmokePosition(player, dt, direction, ...)
+		abilityModules["Jett_Smoke"]:changeSmokePosition(player, dt, direction, ...)
 	end)
 end
 
 local function start()
-	ContextActionService:BindAction("JettDash", useAbility, false, Enum.KeyCode.E)
-	ContextActionService:BindAction("JettSmoke", useAbility, false, Enum.KeyCode.C)
-	ContextActionService:BindAction("JettUpDraft", useAbility, false, Enum.KeyCode.Q)
-	ContextActionService:BindAction("JettKnives", useAbility, false, Enum.KeyCode.X)
+	ContextActionService:BindAction("Jett_Dash", useAbility, false, Enum.KeyCode.E)
+	ContextActionService:BindAction("Jett_Smoke", useAbility, false, Enum.KeyCode.C)
+	ContextActionService:BindAction("Jett_UpDraft", useAbility, false, Enum.KeyCode.Q)
+	ContextActionService:BindAction("Jett_Knives", useAbility, false, Enum.KeyCode.X)
 end
 --#endregion
 

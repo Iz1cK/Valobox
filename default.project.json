@@ -16,6 +16,9 @@
       },
       "ReplicatedAssets": {
         "$path": "assets/ReplicatedStorage"
+      },
+      "GeneralData": {
+        "$path": "src/generaldata"
       }
     },
     "ServerStorage": {
