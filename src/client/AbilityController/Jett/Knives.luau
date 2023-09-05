@@ -150,6 +150,20 @@ function module:fireKnife(player: Player, ...)
 	return direction
 end
 
+function module:CanUseAbility(player: Player, ...)
+	local unpacked = { ... }
+	local state = unpacked[1] or nil
+	if state.type ~= setupState.type then
+		return false
+	end
+	knifes[player] = knifes[player] or {}
+	if #knifes[player] ~= 0 then
+		print("No more knifes")
+		return false
+	end
+	return true
+end
+
 function module:GetAbilityData()
 	return currentState
 end

@@ -21,6 +21,10 @@ function module:Activate(player: Player, state: Enum.UserInputState, ...)
 	PrimaryPart:ApplyImpulse(Mass * direction * abilityData.Strength)
 end
 
+function module:CanUseAbility(player: Player, ...)
+	return true
+end
+
 function module:GetAbilityData(player)
 	return player, self.Name
 end

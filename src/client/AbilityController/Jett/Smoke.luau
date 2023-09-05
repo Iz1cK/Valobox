@@ -101,4 +101,14 @@ function module:changeSmokePosition(player, dt, ...)
 		end
 	end
 end
+
+function module:CanUseAbility(player, ...)
+	smokes[player] = smokes[player] or {}
+	if #smokes[player] == 1 then
+		print("Smoke already out")
+		return false
+	end
+	return true
+end
+
 return module

@@ -28,6 +28,10 @@ function module:Activate(player: Player, state: Enum.UserInputState, ...)
 	)
 end
 
+function module:CanUseAbility(player: Player, ...)
+	return true
+end
+
 function module:GetAbilityData(player)
 	return player, self.Name
 end
